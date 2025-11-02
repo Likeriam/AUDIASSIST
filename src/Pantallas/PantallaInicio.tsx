@@ -12,7 +12,7 @@ export default function PantallaInicio({ navigation }: any) {
         style={styles.btn}
         activeOpacity={0.85}
       >
-        <Text style={styles.btnText}>Ir a RegistrOO</Text>
+        <Text style={styles.btnText}>Ir a Registro</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => navigation.navigate('Crear_Usuario')}
