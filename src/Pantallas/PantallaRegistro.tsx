@@ -4,14 +4,22 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 export default function PantallaRegistro({ navigation }: any) {
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/logoAudiassist.png')} style={styles.logo} resizeMode="contain" />
+
+      <Image 
+      source={require('../../assets/logoAudiassist.png')} 
+      style={styles.logo} 
+      resizeMode="contain" 
+      />
+
       <Text style={styles.title}>Registro</Text>
+
         <TouchableOpacity
             onPress={() => navigation.navigate('Inicio_de_sesión')}
             style={styles.btn}
             activeOpacity={0.85}>
           <Text style={styles.btnText}>Ir a Inicio</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
             onPress={() => navigation.navigate('Crear_Usuario')}
             style={styles.btn}
