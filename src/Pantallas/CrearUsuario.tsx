@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
 
 export default function PantallaRegistro({ navigation }: any) {
   return (
@@ -19,6 +19,27 @@ export default function PantallaRegistro({ navigation }: any) {
       
       <View style={styles.main}>
         <Text style={styles.title}>Crear usuario</Text>
+        
+         <Text style={[styles.label, { marginTop: 16 }]}>Ingrese su Rut</Text>
+          <TextInput
+             style={styles.input}
+              secureTextEntry
+          />
+
+         <Text style={[styles.label, { marginTop: 16 }]}>Contraseña</Text>
+          <TextInput
+             style={styles.input}
+              secureTextEntry
+          />
+
+
+        <TouchableOpacity
+          onPress={() => {}}
+          style={styles.btn}
+          activeOpacity={0.85}>
+          <Text style={styles.btnText}>Crear usuario</Text>
+        </TouchableOpacity>
+
 
         <TouchableOpacity
           onPress={() => navigation.navigate('Registro')}
@@ -108,5 +129,21 @@ const styles = StyleSheet.create({
   },
   btnTextSecundario: {
     color: '#48718d',
+  },
+  input: {
+    width: '80%',
+    height: 48,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginVertical: 10,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  label: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
   },
 });
