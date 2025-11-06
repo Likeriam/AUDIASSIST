@@ -19,6 +19,11 @@ export default function PantallaRegistro({ navigation }: any) {
       
       <View style={styles.main}>
         <Text style={styles.title}>Crear usuario</Text>
+
+        <Text style= {styles.label}>Nombre de usuario</Text>
+          <TextInput
+             style={styles.input}
+          />
         
          <Text style={[styles.label, { marginTop: 16 }]}>Ingrese su Rut</Text>
           <TextInput
