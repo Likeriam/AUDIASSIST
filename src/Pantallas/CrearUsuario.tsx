@@ -20,7 +20,7 @@ export default function PantallaRegistro({ navigation }: any) {
       <View style={styles.main}>
         <Text style={styles.title}>Crear usuario</Text>
 
-        <Text style= {styles.label}>Nombre de usuario</Text>
+        <Text style= {styles.label}>Nombre de usuari0</Text>
           <TextInput
              style={styles.input}
           />
