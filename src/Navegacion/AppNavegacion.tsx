@@ -2,7 +2,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PantallaInicio from '../Pantallas/PantallaInicio';
 import PantallaRegistro from '../Pantallas/PantallaRegistro';
-import CrearUsuario from '../Pantallas/CrearUsuario';
+import CrearCalendario from '../Pantallas/CrearCalendario';
+import ListaPacientes from '../Pantallas/ListaPacientes';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -12,7 +14,8 @@ export default function AppNavegacion() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Inicio_de_sesión" component={PantallaInicio} />
         <Stack.Screen name="Registro" component={PantallaRegistro} />
-        <Stack.Screen name="Crear_Usuario" component={CrearUsuario}/>
+        <Stack.Screen name="Crear_Calendario" component={CrearCalendario} />
+        <Stack.Screen name="Lista_Pacientes" component={ListaPacientes} />
       </Stack.Navigator>
     </NavigationContainer>
   );

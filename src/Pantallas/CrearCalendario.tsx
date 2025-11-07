@@ -1,11 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
 
-export default function PantallaRegistro({ navigation }: any) {
+export default function CrearCalendario ({ navigation }: any) {
   return (
     <View style={styles.container}>
       
       <View style={styles.header}>
+        
         <View style={styles.logoContainer}>
           <Image
             
@@ -14,35 +15,25 @@ export default function PantallaRegistro({ navigation }: any) {
             resizeMode="contain"/>
         
         </View>
+      
       </View>
 
       
       <View style={styles.main}>
-        <Text style={styles.title}>Crear usuario</Text>
+        <Text style={styles.title}>Crear Calendario</Text>
 
-        <Text style= {styles.label}>Nombre de usuari0</Text>
+        <Text style= {styles.label}>Ingrese el Rut del usuario</Text>
           <TextInput
              style={styles.input}
           />
         
-         <Text style={[styles.label, { marginTop: 16 }]}>Ingrese su Rut</Text>
-          <TextInput
-             style={styles.input}
-              secureTextEntry
-          />
-
-         <Text style={[styles.label, { marginTop: 16 }]}>Contraseña</Text>
-          <TextInput
-             style={styles.input}
-              secureTextEntry
-          />
 
 
         <TouchableOpacity
           onPress={() => {}}
           style={styles.btn}
           activeOpacity={0.85}>
-          <Text style={styles.btnText}>Crear usuario</Text>
+          <Text style={styles.btnText}>Crear Calendario</Text>
         </TouchableOpacity>
 
 
@@ -79,11 +70,13 @@ const styles = StyleSheet.create({
 
   
   header: {
-    backgroundColor: '#1a2942', // azul oscuro
+    backgroundColor: '#1a2942', 
     height: 80,
     justifyContent: 'center',
     paddingHorizontal: 20,
+    paddingTop: 20
   },
+  
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',

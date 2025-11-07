@@ -21,10 +21,10 @@ export default function PantallaRegistro({ navigation }: any) {
         </TouchableOpacity>
 
         <TouchableOpacity
-            onPress={() => navigation.navigate('Crear_Usuario')}
+            onPress={() => navigation.navigate('Crear_Calendario')}
             style={styles.btn}
             activeOpacity={0.85}>
-          <Text style={styles.btnText}>Ir a creacion de usuario</Text>
+          <Text style={styles.btnText}>Ir a creacion de calendario</Text>
         </TouchableOpacity>
     </View>
   );
