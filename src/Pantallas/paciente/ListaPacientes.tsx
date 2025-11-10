@@ -3,6 +3,12 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'reac
 import { FlatList } from 'react-native';
 
 export default function ListaPaciente ({ navigation }: any) {
+  const datos = [
+    { id: '1', nombre: 'Juan Pérez', correo: 'juan@mail.com' },
+    { id: '2', nombre: 'María Soto', correo: 'maria@mail.com' },
+    { id: '3', nombre: 'Paciente Audífono', correo: 'paciente@mail.com' },
+  ];
+
   return (
     <View style={styles.container}>      
       <View style={styles.header}>        
@@ -13,27 +19,22 @@ export default function ListaPaciente ({ navigation }: any) {
             resizeMode="contain"/>     
         </View>      
       </View>   
+      <FlatList
+        data={datos}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ padding: 16 }}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text style={styles.itemTitle}>{item.nombre}</Text>
+            <Text style={styles.itemSub}>{item.correo}</Text>
+          </View>
+        )}
+      />
     </View>
   );
 }
 
-const datos = [
-  { id: '1', nombre: 'Juan Pérez', correo: 'juan@mail.com' },
-  { id: '2', nombre: 'María Soto', correo: 'maria@mail.com' },
-  { id: '3', nombre: 'Paciente Audífono', correo: 'paciente@mail.com' },
-];
 
-<FlatList
-  data={datos}
-  keyExtractor={(item) => item.id}
-  contentContainerStyle={{ padding: 16 }}
-  renderItem={({ item }) => (
-    <View style={styles.item}>
-      <Text style={styles.itemTitle}>{item.nombre}</Text>
-      <Text style={styles.itemSub}>{item.correo}</Text>
-    </View>
-  )}
-/>
 
 const styles = StyleSheet.create({
     itemTitle: {

@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
 
 export default function PantallaRegistro({ navigation }: any) {
   return (
@@ -10,6 +10,10 @@ export default function PantallaRegistro({ navigation }: any) {
       style={styles.logo} 
       resizeMode="contain" 
       />
+
+      <Text style= {styles.label}>Ingrese su Rut </Text>
+            
+      <TextInput style={styles.input}/>
 
       <Text style={styles.title}>Registro</Text>
 
@@ -54,5 +58,19 @@ const styles = StyleSheet.create({
   
     btnText:{ color:'#333', 
     fontSize:16, 
-    fontWeight:'600' }
+    fontWeight:'600' },
+
+    label:{ fontSize:16, 
+    color:'#333',
+    marginBottom:5 },
+
+    input:{ 
+    width: '80%',
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#333',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20
+    },
 });

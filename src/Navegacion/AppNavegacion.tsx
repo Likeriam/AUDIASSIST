@@ -2,8 +2,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PantallaInicio from '../Pantallas/PantallaInicio';
 import PantallaRegistro from '../Pantallas/PantallaRegistro';
-import CrearCalendario from '../Pantallas/CrearCalendario';
-import ListaPacientes from '../Pantallas/ListaPacientes';
+import CrearCalendario from '../Pantallas/Medico/CrearCalendario';
+import ListaPacientes from '../Pantallas/paciente/ListaPacientes';
 
 
 const Stack = createNativeStackNavigator();
