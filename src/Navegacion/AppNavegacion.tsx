@@ -1,8 +1,8 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import PantallaInicio from '../Pantallas/PantallaInicio';
-import PantallaRegistro from '../Pantallas/PantallaRegistro';
-import CrearCalendario from '../Pantallas/Medico/CrearCalendario';
+import PantallaInicio from '../Pantallas/ScrLogPaciente';
+import PantallaRegistro from '../Pantallas/SrcRegistro';
+import CrearCalendario from '../Pantallas/Medico/ScrCrearCalend';
 import ListaPacientes from '../Pantallas/paciente/ListaPacientes';
 
 
