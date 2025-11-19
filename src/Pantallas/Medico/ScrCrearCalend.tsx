@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
 
-export default function CrearCalendario ({ navigation }: any) {
+export default function ScrCrearCalend ({ navigation }: any) {
   return (
     <View style={styles.container}>
       
@@ -10,7 +10,7 @@ export default function CrearCalendario ({ navigation }: any) {
         <View style={styles.logoContainer}>
           <Image
             
-            source={require('../../assets/logoAudiassist2.png')}
+            source={require('../../../assets/logoAudiassist2.png')}
             style={styles.logo}
             resizeMode="contain"/>
         
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     height: 80,
     justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingTop: 20
+    paddingTop: 40
   },
   
   logoContainer: {
