@@ -11,6 +11,7 @@ import ScrCuidadoAudifonoR from '../Pantallas/paciente/ScrCuidadoAudifonoR';
 import ScrVideoDemostrativo from '../Pantallas/paciente/ScrVIdeoDemostrativo';
 import ScrManualMoxiV from '../Pantallas/paciente/ScrManualMoxiV';
 import ScrPedirConsumibles from '../Pantallas/paciente/ScrPedirConsumibles';
+import ScrCompletarCompra from '../Pantallas/paciente/ScrCompletarCompra';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,7 @@ export default function AppNavegacion() {
         <Stack.Screen name="Video_Demostrativo" component={ScrVideoDemostrativo}/>
         <Stack.Screen name="Manual_MoxiV" component={ScrManualMoxiV}/>
         <Stack.Screen name="Pedir_Consumible" component={ScrPedirConsumibles}/>
+        <Stack.Screen name="Completar_Compra" component={ScrCompletarCompra}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

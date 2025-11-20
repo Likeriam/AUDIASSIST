@@ -81,13 +81,12 @@ export default function ScrHomePaciente({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  // Igual que ScrCrearCalend
+  
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
 
-  // Barra superior replicada exactamente
   header: {
     backgroundColor: '#1a2942',
     height: 80,
