@@ -14,7 +14,7 @@ export default function ScrLogPaciente({ navigation }: any) {
     try {
       // Validar campos vacíos
       if (!rut || !password) {
-        Alert.alert('❌ Error', 'Por favor completa todos los campos');
+        Alert.alert(' Error', 'Por favor completa todos los campos');
         return;
       }
 
