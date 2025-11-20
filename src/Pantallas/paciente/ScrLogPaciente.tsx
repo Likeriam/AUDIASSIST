@@ -26,7 +26,7 @@ export default function ScrLogPaciente({ navigation }: any) {
       // Hacer login con RUT
       await signInWithRut(cleanedRut, password);
       
-      Alert.alert('✅ Éxito', 'Bienvenido a AUDIASSIST');
+      Alert.alert(' Éxito', 'Bienvenido a AUDIASSIST');
       
       // Navegar a la pantalla principal
       navigation.navigate('Home_Paciente');
@@ -35,11 +35,11 @@ export default function ScrLogPaciente({ navigation }: any) {
       console.error('Error en login:', error);
       
       if (error.message.includes('RUT no encontrado')) {
-        Alert.alert('❌ Error', 'RUT no registrado. Por favor regístrate primero.');
+        Alert.alert(' Error', 'RUT no registrado. Por favor regístrate primero.');
       } else if (error.message.includes('Invalid login credentials')) {
-        Alert.alert('❌ Error', 'Contraseña incorrecta');
+        Alert.alert(' Error', 'Contraseña incorrecta');
       } else {
-        Alert.alert('❌ Error', 'No se pudo iniciar sesión. Intenta nuevamente.');
+        Alert.alert(' Error', 'No se pudo iniciar sesión. Intenta nuevamente.');
       }
     }
   };
