@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../Contexts/AuthContext';
 import { cleanRut } from '../../Lib/helpers/authHelpers';
 
 export default function ScrLogPaciente({ navigation }: any) {
@@ -93,7 +93,7 @@ export default function ScrLogPaciente({ navigation }: any) {
         activeOpacity={0.85}
       >
         <Text style={styles.btnSecondaryText}>
-          ¿No tienes cuenta? Regístrate
+          ¿No tienes cuenta?{'\n'}Regístrate
         </Text>
       </TouchableOpacity>
 
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingTop: 50,
+    paddingTop: 40,
   },
 
   logo: {
@@ -160,14 +160,17 @@ const styles = StyleSheet.create({
   },
 
   btnSecondary: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginTop: 10,
-  },
+    width: '90%',
+  alignItems: 'center',
+  marginTop: 20,
+  paddingHorizontal: 10,
+},
 
   btnSecondaryText: {
     color: '#48718d',
-    fontSize: 14,
-    textDecorationLine: 'underline',
-  },
+  fontSize: 14,
+  textDecorationLine: 'underline',
+  textAlign: 'center',
+  flexWrap: 'wrap',
+},
 });
