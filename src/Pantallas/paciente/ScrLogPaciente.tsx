@@ -1,9 +1,48 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { useAuth } from '../../contexts/AuthContext';
+import { cleanRut } from '../../Lib/helpers/authHelpers';
 
 export default function ScrLogPaciente({ navigation }: any) {
-  const [menuVisible, setMenuVisible] = useState(false);
+  const { signInWithRut, loading } = useAuth();
+  
+  const [rut, setRut] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      // Validar campos vacíos
+      if (!rut || !password) {
+        Alert.alert('❌ Error', 'Por favor completa todos los campos');
+        return;
+      }
+
+      // Limpiar RUT (quitar puntos y guiones)
+      const cleanedRut = cleanRut(rut);
+
+      console.log('Intentando login con RUT:', cleanedRut);
+
+      // Hacer login con RUT
+      await signInWithRut(cleanedRut, password);
+      
+      Alert.alert('✅ Éxito', 'Bienvenido a AUDIASSIST');
+      
+      // Navegar a la pantalla principal
+      navigation.navigate('Home_Paciente');
+      
+    } catch (error: any) {
+      console.error('Error en login:', error);
+      
+      if (error.message.includes('RUT no encontrado')) {
+        Alert.alert('❌ Error', 'RUT no registrado. Por favor regístrate primero.');
+      } else if (error.message.includes('Invalid login credentials')) {
+        Alert.alert('❌ Error', 'Contraseña incorrecta');
+      } else {
+        Alert.alert('❌ Error', 'No se pudo iniciar sesión. Intenta nuevamente.');
+      }
+    }
+  };
 
   return (
     <View style={styles.TopContainer}>
@@ -16,10 +55,13 @@ export default function ScrLogPaciente({ navigation }: any) {
       <Text style={styles.title}>Inicio de sesión</Text>
 
       {/* RUT */}
-      <Text style={styles.label}>Ingrese su Rut</Text>
+      <Text style={styles.label}>Ingrese su RUT</Text>
       <TextInput
         style={styles.input}
-        placeholder="12.345.678-9"
+        placeholder="12345678-9"
+        value={rut}
+        onChangeText={setRut}
+        autoCapitalize="none"
       />
 
       {/* CONTRASEÑA */}
@@ -27,66 +69,35 @@ export default function ScrLogPaciente({ navigation }: any) {
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
+        value={password}
+        onChangeText={setPassword}
         secureTextEntry
       />
 
-      {/* BOTÓN QUE ABRE / CIERRA MENÚ */}
+      {/* BOTÓN DE INICIAR SESIÓN */}
       <TouchableOpacity
-        onPress={() => setMenuVisible((prev) => !prev)}
+        onPress={handleLogin}
         style={styles.btn}
         activeOpacity={0.85}
+        disabled={loading}
       >
         <Text style={styles.btnText}>
-          {menuVisible ? 'Cerrar menú' : 'Abrir menú'}
+          {loading ? 'Cargando...' : 'Iniciar Sesión'}
         </Text>
       </TouchableOpacity>
 
-          {/* MENÚ DESPLEGABLE */}
-    {menuVisible && (
-      <View style={styles.dropdown}>
+      {/* BOTÓN DE REGISTRO */}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Registro')}
+        style={styles.btnSecondary}
+        activeOpacity={0.85}
+      >
+        <Text style={styles.btnSecondaryText}>
+          ¿No tienes cuenta? Regístrate
+        </Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => {
-            setMenuVisible(false);
-            navigation.navigate('Home_Paciente');  // ← NUEVA OPCIÓN
-          }}
-          style={styles.dropdownItem}
-        >
-          <Text style={styles.dropdownText}>Ir al Inicio Paciente</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => {
-            setMenuVisible(false);
-            navigation.navigate('Registro');
-          }}
-          style={styles.dropdownItem}
-        >
-          <Text style={styles.dropdownText}>Ir a Registro</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => {
-            setMenuVisible(false);
-            navigation.navigate('Crear_Calendario');
-          }}
-          style={styles.dropdownItem}
-        >
-          <Text style={styles.dropdownText}>Ir a creación de calendario</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => {
-            setMenuVisible(false);
-            navigation.navigate('Lista_Pacientes');
-          }}
-          style={styles.dropdownItem}
-        >
-          <Text style={styles.dropdownText}>Ir a Lista Pacientes</Text>
-        </TouchableOpacity>
-
-      </View>
-      )}
+      <StatusBar style="auto" />
     </View>
   );
 }
@@ -113,20 +124,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
 
-  btn: {
-    backgroundColor: '#FFD84D',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    marginVertical: 10,
-  },
-
-  btnText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
   label: {
     fontSize: 16,
     color: '#333',
@@ -146,25 +143,31 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  dropdown: {
-    marginTop: 10,
+  btn: {
+    backgroundColor: '#FFD84D',
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    marginVertical: 10,
     width: '80%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    overflow: 'hidden',
+    alignItems: 'center',
   },
 
-  dropdownItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-
-  dropdownText: {
-    fontSize: 16,
+  btnText: {
     color: '#333',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
+  btnSecondary: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+
+  btnSecondaryText: {
+    color: '#48718d',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });
