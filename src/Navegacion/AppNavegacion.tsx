@@ -12,6 +12,9 @@ import ScrVideoDemostrativo from '../Pantallas/paciente/ScrVIdeoDemostrativo';
 import ScrManualMoxiV from '../Pantallas/paciente/ScrManualMoxiV';
 import ScrPedirConsumibles from '../Pantallas/paciente/ScrPedirConsumibles';
 import ScrCompletarCompra from '../Pantallas/paciente/ScrCompletarCompra';
+import ScrProximaCita from '../Pantallas/paciente/ScrProximaCita';
+import ScrCalendarioPaciente from '../Pantallas/paciente/ScrCalendarioPaciente';
+import TestSupabase from '../Pantallas/TestSupabase';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +33,9 @@ export default function AppNavegacion() {
         <Stack.Screen name="Manual_MoxiV" component={ScrManualMoxiV}/>
         <Stack.Screen name="Pedir_Consumible" component={ScrPedirConsumibles}/>
         <Stack.Screen name="Completar_Compra" component={ScrCompletarCompra}/>
+        <Stack.Screen name="Proxima_Cita" component={ScrProximaCita}/>
+        <Stack.Screen name="Calendario_Paciente" component={ScrCalendarioPaciente}/>
+        <Stack.Screen name="Test_Supabase" component={TestSupabase} />
       </Stack.Navigator>
     </NavigationContainer>
   );

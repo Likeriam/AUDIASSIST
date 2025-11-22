@@ -3,10 +3,10 @@ import {StyleSheet,Text,View,Image,TouchableOpacity,} from 'react-native';
 import { WebView } from 'react-native-webview';
 
 // URL del video normal (watch)
-const VIDEO_URL = 'https://www.youtube.com/watch?v=dYKQEguaTp8';
+const VIDEO_URL = 'https://youtu.be/c38vHBiwtZs?si=21yMy6C7mYPGR7pd';
 
 // URL para EMBED (importante para mostrar dentro del WebView)
-const EMBED_URL = 'https://www.youtube.com/embed/dYKQEguaTp8';
+const EMBED_URL = 'https://youtu.be/c38vHBiwtZs?si=21yMy6C7mYPGR7pd';
 
 export default function SrcVideoDemostrativo({ navigation }: any) {
   return (
@@ -27,7 +27,7 @@ export default function SrcVideoDemostrativo({ navigation }: any) {
           <TouchableOpacity
             style={styles.backBtn}
             activeOpacity={0.8}
-            onPress={() => navigation.goBack()} // o navigation.navigate('Home_Paciente')
+            onPress={() => navigation.goBack()} 
           >
             <Text style={styles.backText}>Volver</Text>
           </TouchableOpacity>

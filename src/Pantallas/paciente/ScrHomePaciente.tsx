@@ -1,8 +1,22 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { usePacienteData } from '../../Hooks/usePacienteData';
 
 export default function ScrHomePaciente({ navigation }: any) {
-  const nombrePaciente = 'Juan Pérez';
+  const { pacienteData, loading } = usePacienteData();
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#FFD84D" />
+        <Text style={{ marginTop: 10, color: '#48718d' }}>Cargando...</Text>
+      </View>
+    );
+  }
+
+  const nombreCompleto = pacienteData 
+    ? `${pacienteData.nombre} ${pacienteData.apellido}`
+    : 'Usuario';
 
   return (
     <View style={styles.container}>
@@ -35,7 +49,7 @@ export default function ScrHomePaciente({ navigation }: any) {
       {/* CONTENIDO */}
       <View style={styles.content}>
         <Text style={styles.welcome}>Bienvenido</Text>
-        <Text style={styles.name}>({nombrePaciente})</Text>
+        <Text style={styles.name}>({nombreCompleto})</Text>
 
         <Text style={styles.question}>¿Qué desea revisar?</Text>
 
@@ -119,7 +133,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // Contenido central adaptado
   content: {
     flex: 1,
     alignItems: 'center',
