@@ -15,6 +15,7 @@ import ScrCompletarCompra from '../Pantallas/paciente/ScrCompletarCompra';
 import ScrProximaCita from '../Pantallas/paciente/ScrProximaCita';
 import ScrCalendarioPaciente from '../Pantallas/paciente/ScrCalendarioPaciente';
 import TestSupabase from '../Pantallas/TestSupabase';
+import ScrRegistroTecnologo from '../Pantallas/Medico/ScrRegistroTecnologo';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +37,7 @@ export default function AppNavegacion() {
         <Stack.Screen name="Proxima_Cita" component={ScrProximaCita}/>
         <Stack.Screen name="Calendario_Paciente" component={ScrCalendarioPaciente}/>
         <Stack.Screen name="Test_Supabase" component={TestSupabase} />
+        <Stack.Screen name="Registro_Tecnologo" component={ScrRegistroTecnologo} />
       </Stack.Navigator>
     </NavigationContainer>
   );

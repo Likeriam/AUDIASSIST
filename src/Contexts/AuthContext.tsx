@@ -3,7 +3,7 @@ import { supabase } from '../Lib/supabaseClient';
 import { getEmailByRut } from '../Lib/helpers/authHelpers';
 import { Session, User } from '@supabase/supabase-js';
 
-type UserRole = 'admin' | 'medico' | 'paciente' | null;
+type UserRole = 'admin' | 'Medico' | 'Paciente' | null;
 
 interface UserData {
   id: string;
@@ -159,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (usuarioError) throw usuarioError;
 
       // 3. Crear registro en tabla específica según rol
-      if (rol === 'paciente') {
+      if (rol === 'Paciente') {
         const { error: pacienteError } = await supabase
           .from('Paciente')
           .insert({
@@ -172,7 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
 
         if (pacienteError) throw pacienteError;
-      } else if (rol === 'medico') {
+      } else if (rol === 'Medico') {
         const { error: medicoError } = await supabase
           .from('Medico')
           .insert({

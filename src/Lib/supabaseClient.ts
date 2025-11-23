@@ -1,16 +1,16 @@
 import 'react-native-url-polyfill/auto';
-import 'react-native-get-random-values';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import Constants from 'expo-constants';
 
-console.log('DEBUG - Constants.expoConfig.extra:', Constants.expoConfig?.extra);
+const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
-const supabaseUrl = (Constants.expoConfig?.extra?.supabaseUrl as string) ?? '';
-const supabaseAnonKey = (Constants.expoConfig?.extra?.supabaseAnonKey as string) ?? '';
+console.log('DEBUG - Supabase URL:', supabaseUrl ? '[OK]' : '[MISSING]');
+console.log('DEBUG - Supabase ANON KEY:', supabaseAnonKey ? '[OK]' : '[MISSING]');
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Faltan las variables de entorno de Supabase en Constants.expoConfig.extra');
+  throw new Error('Faltan las variables de entorno de Supabase. Revisa .env y app.config.js');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -21,3 +21,4 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 });
+

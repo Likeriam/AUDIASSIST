@@ -49,7 +49,7 @@ export default function ScrRegistro({ navigation }: any) {
       console.log('Iniciando registro...');
 
       // 6. Registrar usuario
-      await signUp(email, password, 'paciente', {
+      await signUp(email, password, 'Paciente', {
         rut: cleanedRut,
         nombre: nombre.trim(),
         apellido: apellido.trim(),
@@ -165,7 +165,7 @@ export default function ScrRegistro({ navigation }: any) {
         <Text style={styles.label}>Confirmar Contraseña *</Text>
         <TextInput 
           style={styles.input}
-          placeholder="Repite tu contraseña"
+          placeholder="Repetir contraseña"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
@@ -191,6 +191,17 @@ export default function ScrRegistro({ navigation }: any) {
         >
           <Text style={styles.btnSecondaryText}>
             ¿Ya tienes cuenta? Inicia sesión
+          </Text>
+        </TouchableOpacity>
+
+        {/* NUEVO: BOTÓN PARA REGISTRARSE COMO TECNÓLOGO */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Registro_Tecnologo')}
+          style={styles.btnSecondary}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.btnSecondaryText}>
+            Registro Tecnólogos
           </Text>
         </TouchableOpacity>
 

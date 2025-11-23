@@ -1,15 +1,5 @@
-// src/Pantallas/paciente/ScrHomePaciente.tsx
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-  TouchableWithoutFeedback,
-  Alert,
-} from 'react-native';
+import {StyleSheet,Text,View,Image,TouchableOpacity,ActivityIndicator,TouchableWithoutFeedback,Alert,} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../Lib/supabaseClient'; // ajusta la ruta si tu supabaseClient está en otra carpeta
 import { usePacienteData } from '../../Hooks/usePacienteData';
@@ -132,14 +122,6 @@ export default function ScrHomePaciente({ navigation }: any) {
           activeOpacity={0.85}
         >
           <Text style={styles.btnText}>Ver mi próxima cita</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={() => navigation.navigate('Calendario_Paciente')}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.btnText}>Ver mi calendario</Text>
         </TouchableOpacity>
       </View>
 
