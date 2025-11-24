@@ -3,14 +3,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import Constants from 'expo-constants';
 
-const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+// Intentamos leer desde expo Constants (extra) y luego desde process.env
+const extra = (Constants.manifest && (Constants.manifest as any).extra) || {};
+const supabaseUrl =
+  (extra?.supabaseUrl as string) ||
+  process.env.EXPO_PUBLIC_SUPABASE_URL ||
+  '';
+const supabaseAnonKey =
+  (extra?.supabaseAnonKey as string) ||
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
+  '';
 
-console.log('DEBUG - Supabase URL:', supabaseUrl ? '[OK]' : '[MISSING]');
-console.log('DEBUG - Supabase ANON KEY:', supabaseAnonKey ? '[OK]' : '[MISSING]');
+// Mensajes de diagnóstico (no imprimen claves)
+console.log('DEBUG - supabaseClient cargado');
+console.log('DEBUG - supabaseUrl presente?', !!supabaseUrl);
+console.log('DEBUG - supabaseAnonKey presente?', !!supabaseAnonKey);
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Faltan las variables de entorno de Supabase. Revisa .env y app.config.js');
+  console.warn(
+    'WARNING - Falta supabaseUrl o supabaseAnonKey. Revisa .env y app.config.js'
+  );
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -21,4 +33,3 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 });
-
