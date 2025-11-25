@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { StyleSheet,Text,View,Image,TouchableOpacity,TextInput,Alert,} from 'react-native';
 import { useAuth } from '../../Contexts/AuthContext';
 import { cleanRut } from '../../Lib/helpers/authHelpers';
+import { supabase } from '../../Lib/supabaseClient';
 
 export default function ScrLogPaciente({ navigation }: any) {
   const { signInWithRut, loading } = useAuth();
-  
+
   const [rut, setRut] = useState('');
   const [password, setPassword] = useState('');
 
@@ -14,32 +15,82 @@ export default function ScrLogPaciente({ navigation }: any) {
     try {
       // Validar campos vacíos
       if (!rut || !password) {
-        Alert.alert(' Error', 'Por favor completa todos los campos');
+        Alert.alert('Error', 'Por favor completa todos los campos');
         return;
       }
 
       // Limpiar RUT (quitar puntos y guiones)
       const cleanedRut = cleanRut(rut);
-
       console.log('Intentando login con RUT:', cleanedRut);
 
-      // Hacer login con RUT
+      // 1) Login usando RUT (busca correo en paciente / tecnólogo)
       await signInWithRut(cleanedRut, password);
-      
-      Alert.alert(' Éxito', 'Bienvenido a AUDIASSIST');
-      
-      // Navegar a la pantalla principal
-      navigation.navigate('Home_Paciente');
-      
+
+      // 2) Obtener usuario actual de Supabase Auth
+      const {
+        data: userDataResult,
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !userDataResult.user) {
+        console.error(
+          'No se pudo obtener el usuario tras el login:',
+          userError
+        );
+        Alert.alert(
+          'Error',
+          'No se pudo obtener la información de tu cuenta.'
+        );
+        return;
+      }
+
+      const authUser = userDataResult.user;
+
+      // 3) Consultar el rol desde la tabla "usuario"
+      const { data: perfil, error: perfilError } = await supabase
+        .from('usuario')
+        .select('rol')
+        .eq('id', authUser.id)
+        .single();
+
+      if (perfilError || !perfil) {
+        console.error('No se pudo obtener el rol del usuario:', perfilError);
+        Alert.alert(
+          'Error',
+          'No se pudo determinar el rol de tu cuenta. Intenta nuevamente.'
+        );
+        return;
+      }
+
+      console.log('Rol detectado para login:', perfil.rol);
+
+      Alert.alert('Éxito', 'Bienvenido a AUDIASSIST');
+
+      // 4) Navegar según el rol
+      if (perfil.rol === 'tecnologo') {
+        // Home para tecnólogo
+        navigation.navigate('Lista_Pacientes');
+      } else {
+        // Por defecto, tratamos como paciente
+        navigation.navigate('Home_Paciente');
+      }
     } catch (error: any) {
       console.error('Error en login:', error);
-      
-      if (error.message.includes('RUT no encontrado')) {
-        Alert.alert(' Error', 'RUT no registrado. Por favor regístrate primero.');
-      } else if (error.message.includes('Invalid login credentials')) {
-        Alert.alert(' Error', 'Contraseña incorrecta');
+
+      const message = error?.message || '';
+
+      if (message.includes('RUT no encontrado')) {
+        Alert.alert(
+          'Error',
+          'RUT no registrado. Por favor regístrate primero.'
+        );
+      } else if (message.includes('Invalid login credentials')) {
+        Alert.alert('Error', 'Contraseña incorrecta');
       } else {
-        Alert.alert(' Error', 'No se pudo iniciar sesión. Intenta nuevamente.');
+        Alert.alert(
+          'Error',
+          'No se pudo iniciar sesión. Intenta nuevamente.'
+        );
       }
     }
   };
@@ -86,14 +137,25 @@ export default function ScrLogPaciente({ navigation }: any) {
         </Text>
       </TouchableOpacity>
 
-      {/* BOTÓN DE REGISTRO */}
+      {/* BOTÓN DE REGISTRO PACIENTE */}
       <TouchableOpacity
         onPress={() => navigation.navigate('Registro')}
         style={styles.btnSecondary}
         activeOpacity={0.85}
       >
         <Text style={styles.btnSecondaryText}>
-          ¿No tienes cuenta?{'\n'}Regístrate
+          ¿Eres paciente? Regístrate aquí
+        </Text>
+      </TouchableOpacity>
+
+      {/* BOTÓN PARA REGISTRO DE TECNÓLOGO */}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Registro_Tecnologo')}
+        style={styles.btnSecondary}
+        activeOpacity={0.85}
+      >
+        <Text style={styles.btnSecondaryText}>
+          ¿Eres tecnólogo? Regístrate aquí
         </Text>
       </TouchableOpacity>
 
@@ -161,16 +223,16 @@ const styles = StyleSheet.create({
 
   btnSecondary: {
     width: '90%',
-  alignItems: 'center',
-  marginTop: 20,
-  paddingHorizontal: 10,
-},
+    alignItems: 'center',
+    marginTop: 20,
+    paddingHorizontal: 10,
+  },
 
   btnSecondaryText: {
     color: '#48718d',
-  fontSize: 14,
-  textDecorationLine: 'underline',
-  textAlign: 'center',
-  flexWrap: 'wrap',
-},
+    fontSize: 14,
+    textDecorationLine: 'underline',
+    textAlign: 'center',
+    flexWrap: 'wrap',
+  },
 });

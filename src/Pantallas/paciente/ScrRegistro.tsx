@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Alert, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  ScrollView,
+} from 'react-native';
 import { useAuth } from '../../Contexts/AuthContext';
 import { cleanRut } from '../../Lib/helpers/authHelpers';
 
@@ -24,32 +33,35 @@ export default function ScrRegistro({ navigation }: any) {
         return;
       }
 
-      // 2. Validar que las contraseñas coincidan
+      // 2. Normalizar email: quitar espacios y pasar a minúsculas
+      const emailLimpio = email.trim().toLowerCase();
+
+      // 3. Validar que las contraseñas coincidan
       if (password !== confirmPassword) {
         Alert.alert(' Error', 'Las contraseñas no coinciden');
         return;
       }
 
-      // 3. Validar longitud mínima de contraseña
+      // 4. Validar longitud mínima de contraseña
       if (password.length < 6) {
         Alert.alert(' Error', 'La contraseña debe tener al menos 6 caracteres');
         return;
       }
 
-      // 4. Validar formato de email
+      // 5. Validar formato de email (usando el email ya limpio)
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      if (!emailRegex.test(emailLimpio)) {
         Alert.alert(' Error', 'Ingresa un email válido');
         return;
       }
 
-      // 5. Limpiar RUT (quitar puntos y guiones)
+      // 6. Limpiar RUT (quitar puntos y guiones)
       const cleanedRut = cleanRut(rut);
 
       console.log('Iniciando registro...');
 
-      // 6. Registrar usuario
-      await signUp(email, password, 'Paciente', {
+      // 7. Registrar usuario en Supabase (usando emailLimpio)
+      await signUp(emailLimpio, password, 'paciente', {
         rut: cleanedRut,
         nombre: nombre.trim(),
         apellido: apellido.trim(),
@@ -79,10 +91,14 @@ export default function ScrRegistro({ navigation }: any) {
     } catch (error: any) {
       console.error('Error en registro:', error);
       
-      if (error.message.includes('duplicate key')) {
+      const msg = error?.message || '';
+
+      if (msg.includes('duplicate key')) {
         Alert.alert(' Error', 'Este RUT o email ya está registrado');
-      } else if (error.message.includes('User already registered')) {
+      } else if (msg.includes('User already registered')) {
         Alert.alert(' Error', 'Este email ya está registrado');
+      } else if (msg.toLowerCase().includes('email address') && msg.toLowerCase().includes('invalid')) {
+        Alert.alert(' Error', 'Supabase rechazó el correo. Revisa el formato del email.');
       } else {
         Alert.alert(' Error', 'No se pudo completar el registro. Intenta nuevamente.');
       }
@@ -191,17 +207,6 @@ export default function ScrRegistro({ navigation }: any) {
         >
           <Text style={styles.btnSecondaryText}>
             ¿Ya tienes cuenta? Inicia sesión
-          </Text>
-        </TouchableOpacity>
-
-        {/* NUEVO: BOTÓN PARA REGISTRARSE COMO TECNÓLOGO */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Registro_Tecnologo')}
-          style={styles.btnSecondary}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.btnSecondaryText}>
-            Registro Tecnólogos
           </Text>
         </TouchableOpacity>
 

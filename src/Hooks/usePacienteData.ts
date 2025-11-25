@@ -7,7 +7,8 @@ export interface PacienteData {
   nombre: string;
   apellido: string;
   telefono: string;
-  user_id: string;
+  correo: string;
+  usuario_id: string;
   created_at: string;
 }
 
@@ -29,17 +30,18 @@ export const usePacienteData = () => {
       setError(null);
 
       const { data, error: supabaseError } = await supabase
-        .from('Paciente')
+        .from('paciente')
         .select('*')
-        .eq('user_id', user?.id)
-        .single();
+        .eq('usuario_id', user?.id)
+        .maybeSingle();
 
       if (supabaseError) throw supabaseError;
 
-      setPacienteData(data);
+      setPacienteData(data as PacienteData);
     } catch (err: any) {
       console.error('Error cargando datos del paciente:', err);
-      setError(err.message);
+      setError(err.message ?? 'Error desconocido');
+      setPacienteData(null);
     } finally {
       setLoading(false);
     }

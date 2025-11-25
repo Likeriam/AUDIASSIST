@@ -30,8 +30,19 @@ export default function ScrRegistroTecnologo({ navigation }: any) {
   const handleRegistro = async () => {
     try {
       // validaciones básicas
-      if (!rut || !nombre || !apellido || !email || !password || !confirmPassword || !codigoAutorizacion) {
-        Alert.alert('Error', 'Por favor completa todos los campos obligatorios (incluye el código de autorización).');
+      if (
+        !rut ||
+        !nombre ||
+        !apellido ||
+        !email ||
+        !password ||
+        !confirmPassword ||
+        !codigoAutorizacion
+      ) {
+        Alert.alert(
+          'Error',
+          'Por favor completa todos los campos obligatorios (incluye el código de autorización).'
+        );
         return;
       }
 
@@ -41,7 +52,10 @@ export default function ScrRegistroTecnologo({ navigation }: any) {
       }
 
       if (password.length < 6) {
-        Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+        Alert.alert(
+          'Error',
+          'La contraseña debe tener al menos 6 caracteres'
+        );
         return;
       }
 
@@ -54,22 +68,27 @@ export default function ScrRegistroTecnologo({ navigation }: any) {
       // limpiar RUT
       const cleanedRut = cleanRut(rut);
 
-      console.log('Iniciando registro de tecnólogo...', { email, cleanedRut, institucion });
+      // normalizar email igual que en signUp (baja y sin espacios)
+      const normalizedEmail = email.trim().toLowerCase();
 
-      // signUp: se asume que el contexto de Auth acepta un tercer argumento 'rol' y metadatos en objeto
-      // Aquí usamos el rol 'tecnologo' (ajusta según tu esquema de roles)
-      await signUp(email, password, 'Medico', {
+      console.log('Iniciando registro de tecnólogo...', {
+        normalizedEmail,
+        cleanedRut,
+        institucion,
+      });
+
+      await signUp(normalizedEmail, password, 'tecnologo', {
         rut: cleanedRut,
         nombre: nombre.trim(),
         apellido: apellido.trim(),
         telefono: telefono.trim() || null,
-        institucion: institucion.trim() || null,
+        institucion: institucion.trim() || null, // hoy no se guarda en BD, pero no afecta
         codigo_autorizacion: codigoAutorizacion.trim(),
       });
 
       Alert.alert(
         'Registro exitoso',
-        'Tu cuenta de tecnólogo ha sido creada. Espera la verificación si aplica, y luego inicia sesión.',
+        'Tu cuenta de tecnólogo ha sido creada. Ahora puedes iniciar sesión.',
         [
           {
             text: 'Ir a Inicio de Sesión',
@@ -91,12 +110,22 @@ export default function ScrRegistroTecnologo({ navigation }: any) {
     } catch (error: any) {
       console.error('Error en registro tecnólogo:', error);
 
-      if (error.message?.includes('duplicate key')) {
+      // si signUp lanzó un mensaje claro, lo mostramos directamente
+      if (error?.message) {
+        Alert.alert('Error', error.message);
+        return;
+      }
+
+      // fallback por si vienen errores de Postgres
+      if (String(error).includes('duplicate key')) {
         Alert.alert('Error', 'Este RUT o email ya está registrado');
-      } else if (error.message?.includes('User already registered')) {
+      } else if (String(error).includes('User already registered')) {
         Alert.alert('Error', 'Este email ya está registrado');
       } else {
-        Alert.alert('Error', 'No se pudo completar el registro. Intenta nuevamente.');
+        Alert.alert(
+          'Error',
+          'No se pudo completar el registro. Intenta nuevamente.'
+        );
       }
     }
   };
@@ -125,11 +154,21 @@ export default function ScrRegistroTecnologo({ navigation }: any) {
 
         {/* NOMBRE */}
         <Text style={styles.label}>Nombre *</Text>
-        <TextInput style={styles.input} placeholder="Nombre" value={nombre} onChangeText={setNombre} />
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre"
+          value={nombre}
+          onChangeText={setNombre}
+        />
 
         {/* APELLIDO */}
         <Text style={styles.label}>Apellido *</Text>
-        <TextInput style={styles.input} placeholder="Apellido" value={apellido} onChangeText={setApellido} />
+        <TextInput
+          style={styles.input}
+          placeholder="Apellido"
+          value={apellido}
+          onChangeText={setApellido}
+        />
 
         {/* EMAIL */}
         <Text style={styles.label}>Email institucional *</Text>
@@ -192,17 +231,36 @@ export default function ScrRegistroTecnologo({ navigation }: any) {
         />
 
         {/* BOTÓN DE REGISTRARSE COMO TECNÓLOGO */}
-        <TouchableOpacity onPress={handleRegistro} style={styles.btn} activeOpacity={0.85} disabled={loading}>
-          <Text style={styles.btnText}>{loading ? 'Registrando...' : 'Registrarse como Tecnólogo'}</Text>
+        <TouchableOpacity
+          onPress={handleRegistro}
+          style={styles.btn}
+          activeOpacity={0.85}
+          disabled={loading}
+        >
+          <Text style={styles.btnText}>
+            {loading ? 'Registrando...' : 'Registrarse como Tecnólogo'}
+          </Text>
         </TouchableOpacity>
 
         {/* Enlace a otros registros / login */}
-        <TouchableOpacity onPress={() => navigation.navigate('Inicio_de_sesión')} style={styles.btnSecondary} activeOpacity={0.85}>
-          <Text style={styles.btnSecondaryText}>¿Ya tienes cuenta? Inicia sesión</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Inicio_de_sesión')}
+          style={styles.btnSecondary}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.btnSecondaryText}>
+            ¿Ya tienes cuenta? Inicia sesión
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Registro')} style={[styles.btnSecondary, { marginTop: 6 }]} activeOpacity={0.85}>
-          <Text style={styles.btnSecondaryText}>Volver al registro de paciente</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Registro')}
+          style={[styles.btnSecondary, { marginTop: 6 }]}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.btnSecondaryText}>
+            Volver al registro de paciente
+          </Text>
         </TouchableOpacity>
 
         <StatusBar style="auto" />

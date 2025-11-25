@@ -1,24 +1,59 @@
-import React, { useState } from 'react';
-import {StyleSheet,Text,View,Image,TouchableOpacity,ActivityIndicator,TouchableWithoutFeedback,Alert,} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  TouchableWithoutFeedback,
+  Alert,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '../../Lib/supabaseClient'; // ajusta la ruta si tu supabaseClient está en otra carpeta
-import { usePacienteData } from '../../Hooks/usePacienteData';
 
-export default function ScrHomePaciente({ navigation }: any) {
-  const { pacienteData, loading } = usePacienteData();
+import { supabase } from '../../Lib/supabaseClient';
+import { useAuth } from '../../Contexts/AuthContext';
+
+export default function ScrHomeTecnologo({ navigation }: any) {
+  const { userData } = useAuth();
+
   const [menuOpen, setMenuOpen] = useState(false);
-  const nombreCompleto = pacienteData ? `${pacienteData.nombre} ${pacienteData.apellido}` : 'usuario';
+  const [loading, setLoading] = useState(true);
+  const [nombreCompleto, setNombreCompleto] = useState<string>('usuario');
 
-  if (loading) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#FFD84D" />
-        <Text style={{ marginTop: 10, color: '#48718d' }}>Cargando...</Text>
-      </View>
-    );
-  }
+  // Cargar datos del tecnólogo desde la BD
+  useEffect(() => {
+    const fetchTecnologo = async () => {
+      try {
+        if (!userData?.id) {
+          setLoading(false);
+          return;
+        }
 
-  const handleLogout = async () => {
+        const { data, error } = await supabase
+          .from('tecnologo')
+          .select('nombre, apellido')
+          .eq('usuario_id', userData.id)
+          .single();
+
+        if (error) {
+          console.log('Error obteniendo datos de tecnólogo:', error);
+          setNombreCompleto(userData.email || 'usuario');
+        } else if (data) {
+          const fullName = `${data.nombre ?? ''} ${data.apellido ?? ''}`.trim();
+          setNombreCompleto(fullName || (userData.email ?? 'usuario'));
+        }
+      } catch (e) {
+        console.log('Error inesperado obteniendo tecnólogo:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTecnologo();
+  }, [userData?.id]);
+
+  const handleLogout = () => {
     Alert.alert('Cerrar sesión', '¿Desea cerrar sesión?', [
       { text: 'Cancelar', style: 'cancel' },
       {
@@ -26,7 +61,6 @@ export default function ScrHomePaciente({ navigation }: any) {
         style: 'destructive',
         onPress: async () => {
           try {
-            // Intentar cerrar sesión en Supabase (si existe)
             if (supabase?.auth?.signOut) {
               await supabase.auth.signOut();
             }
@@ -41,7 +75,6 @@ export default function ScrHomePaciente({ navigation }: any) {
           }
 
           setMenuOpen(false);
-          // Reinicia la navegación para evitar volver atrás
           navigation.reset({
             index: 0,
             routes: [{ name: 'Inicio_de_sesión' }],
@@ -50,6 +83,20 @@ export default function ScrHomePaciente({ navigation }: any) {
       },
     ]);
   };
+
+  if (loading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { justifyContent: 'center', alignItems: 'center' },
+        ]}
+      >
+        <ActivityIndicator size="large" color="#FFD84D" />
+        <Text style={{ marginTop: 10, color: '#48718d' }}>Cargando...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -63,69 +110,76 @@ export default function ScrHomePaciente({ navigation }: any) {
             resizeMode="contain"
           />
 
-          {/* ESPACIO CENTRAL */}
           <View style={{ flex: 1 }} />
 
-          {/* BOTÓN MI CONFIGURACIÓN */}
+          {/* BOTÓN CONFIGURACIÓN */}
           <TouchableOpacity
             onPress={() => setMenuOpen(prev => !prev)}
             activeOpacity={0.8}
             style={styles.configBtn}
           >
-            <Text style={styles.configText}>Mi configuración</Text>
+            <Text style={styles.configText}>Configuración</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Overlay para cerrar el menu si se toca afuera */}
+      {/* Overlay para cerrar el menú al tocar fuera */}
       {menuOpen && (
         <TouchableWithoutFeedback onPress={() => setMenuOpen(false)}>
           <View style={styles.overlay} />
         </TouchableWithoutFeedback>
       )}
 
-      {/* Menu desplegable */}
+      {/* Menú desplegable */}
       {menuOpen && (
         <View style={styles.menuContainer}>
-          <TouchableOpacity style={styles.menuItem} onPress={handleLogout} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={handleLogout}
+            activeOpacity={0.8}
+          >
             <Text style={styles.menuItemText}>Cerrar sesión</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* CONTENIDO */}
+      {/* CONTENIDO PRINCIPAL */}
       <View style={styles.content}>
         <Text style={styles.welcome}>Bienvenido</Text>
+        <Text style={styles.role}>Tecnólogo Médico</Text>
         <Text style={styles.name}>({nombreCompleto})</Text>
 
-        <Text style={styles.question}>¿Qué desea revisar?</Text>
-
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => navigation.navigate('Detalle_Audifono')}
+          onPress={() => navigation.navigate('Lista_Pacientes')}
           activeOpacity={0.85}
         >
-          <Text style={styles.btnText}>Ver sobre mi audífono</Text>
+          <Text style={styles.btnText}>Pacientes</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => navigation.navigate('Pedir_Consumible')}
+          onPress={() => navigation.navigate('Crear_Calendario')}
           activeOpacity={0.85}
         >
-          <Text style={styles.btnText}>Solicitar consumibles</Text>
+          <Text style={styles.btnText}>Calendario de citas</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => navigation.navigate('Proxima_Cita')}
+          onPress={() =>
+            Alert.alert(
+              'En desarrollo',
+              'La bandeja de entrada de solicitudes estará disponible en una versión futura.'
+            )
+          }
           activeOpacity={0.85}
         >
-          <Text style={styles.btnText}>Ver mi próxima cita</Text>
+          <Text style={styles.btnText}>Bandeja de entrada de solicitudes</Text>
         </TouchableOpacity>
       </View>
 
-      {/* PIE */}
+      {/* PIE DE PÁGINA */}
       <View style={styles.footer}>
         <Text style={styles.version}>Versión 0.1.0</Text>
       </View>
@@ -171,7 +225,7 @@ const styles = StyleSheet.create({
   /* MENU DESPLEGABLE */
   overlay: {
     position: 'absolute',
-    top: 80, // justo debajo de la cabecera
+    top: 80,
     left: 0,
     right: 0,
     bottom: 0,
@@ -179,7 +233,7 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     position: 'absolute',
-    top: 80, // debajo del header
+    top: 80,
     right: 20,
     width: 180,
     backgroundColor: '#fff',
@@ -207,29 +261,27 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 100,
+    paddingTop: 80,
     paddingHorizontal: 24,
   },
 
   welcome: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     color: '#48718d',
   },
 
-  name: {
+  role: {
     fontSize: 22,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 24,
+    color: '#48718d',
   },
 
-  question: {
-    fontSize: 18,
+  name: {
+    fontSize: 20,
+    fontWeight: '600',
     color: '#333',
-    width: '80%',
-    marginBottom: 24,
-    textAlign: 'center',
+    marginBottom: 32,
   },
 
   btn: {
@@ -245,6 +297,7 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 16,
     fontWeight: '600',
+    textAlign: 'center',
   },
 
   footer: {
