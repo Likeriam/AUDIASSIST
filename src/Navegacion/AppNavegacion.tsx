@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import ScrLogGlobal from '../Pantallas/Global/ScrLogGlobal';
 
-import ScrRegistro from '../Pantallas/paciente/ScrRegistro';
+import ScrRegistro from '../Pantallas/paciente/ScrRegistroPaciente';
 import ScrHomePaciente from '../Pantallas/paciente/ScrHomePaciente';
 import ScrAudiPaciente from '../Pantallas/paciente/ScrAudiPaciente';
 import ScrCuidadoAudifonoR from '../Pantallas/paciente/ScrCuidadoAudifonoR';
@@ -15,7 +15,7 @@ import ScrProximaCita from '../Pantallas/paciente/ScrProximaCita';
 import ScrCalendarioPaciente from '../Pantallas/paciente/ScrCalendarioPaciente';
 
 import ScrHomeTecnologo from '../Pantallas/tecnologo/ScrHomeTecnologo';
-import ScrCrearCalend from '../Pantallas/tecnologo/ScrCrearCalend';
+import ScrCrearCalend from '../Pantallas/tecnologo/ScrCalendarioTecnologo';
 import ListaPacientes from '../Pantallas/tecnologo/ScrListaPacientes';
 import ScrRegistroTecnologo from '../Pantallas/tecnologo/ScrRegistroTecnologo';
 

@@ -3,6 +3,7 @@ import { useAuth } from '../Contexts/AuthContext';
 import { supabase } from '../Lib/supabaseClient';
 
 export interface PacienteData {
+  id: string;
   rut: string;
   nombre: string;
   apellido: string;

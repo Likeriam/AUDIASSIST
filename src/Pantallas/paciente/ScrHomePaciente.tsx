@@ -118,10 +118,10 @@ export default function ScrHomePaciente({ navigation }: any) {
 
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => navigation.navigate('Proxima_Cita')}
+          onPress={() => navigation.navigate('Calendario_Paciente')}
           activeOpacity={0.85}
         >
-          <Text style={styles.btnText}>Ver mi próxima cita</Text>
+          <Text style={styles.btnText}>Ver Calendario</Text>
         </TouchableOpacity>
       </View>
 

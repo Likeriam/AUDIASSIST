@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+  ScrollView,
+} from 'react-native';
 import { usePacienteData } from '../../Hooks/usePacienteData';
 import { supabase } from '../../Lib/supabaseClient';
 
@@ -9,24 +16,25 @@ export default function ScrProximaCita({ navigation }: any) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (pacienteData) {
-      cargarProximaCita();
+    if (pacienteData?.id) {
+      cargarProximaCita(pacienteData.id);
     }
-  }, [pacienteData]);
+  }, [pacienteData?.id]);
 
-  const cargarProximaCita = async () => {
+  const cargarProximaCita = async (pacienteId: string) => {
     try {
       setLoading(true);
 
-      // Buscar la próxima cita del paciente (fecha >= hoy)
       const hoy = new Date().toISOString().split('T')[0];
-      
+
       const { data, error } = await supabase
-        .from('Citas')
+        .from('cita') // ← tabla correcta
         .select('*')
-        .eq('paciente_rut', pacienteData?.rut)
+        .eq('paciente_id', pacienteId)    // ← relación por id del paciente
+        .neq('estado', 'cancelado')       // opcional: no mostrar canceladas
         .gte('fecha', hoy)
         .order('fecha', { ascending: true })
+        .order('hora', { ascending: true })
         .limit(1)
         .maybeSingle();
 
@@ -34,9 +42,10 @@ export default function ScrProximaCita({ navigation }: any) {
         throw error;
       }
 
-      setProximaCita(data);
+      setProximaCita(data || null);
     } catch (err: any) {
       console.error('Error cargando próxima cita:', err);
+      setProximaCita(null);
     } finally {
       setLoading(false);
     }
@@ -44,7 +53,12 @@ export default function ScrProximaCita({ navigation }: any) {
 
   if (loadingPaciente || loading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: 'center', alignItems: 'center' },
+        ]}
+      >
         <ActivityIndicator size="large" color="#FFD84D" />
         <Text style={{ marginTop: 10, color: '#48718d' }}>Cargando...</Text>
       </View>
@@ -61,7 +75,7 @@ export default function ScrProximaCita({ navigation }: any) {
             <View style={styles.cardHeader}>
               <Text style={styles.cardHeaderText}>📅 Cita Programada</Text>
             </View>
-            
+
             <View style={styles.cardBody}>
               <View style={styles.row}>
                 <Text style={styles.label}>Fecha:</Text>
@@ -76,33 +90,47 @@ export default function ScrProximaCita({ navigation }: any) {
               </View>
 
               <View style={styles.divider} />
-
               <View style={styles.row}>
                 <Text style={styles.label}>Hora:</Text>
-                <Text style={styles.value}>{proximaCita.hora || 'Por confirmar'}</Text>
+                <Text style={styles.value}>
+                  {proximaCita.hora
+                    ? String(proximaCita.hora).slice(0, 5) // HH:MM
+                    : 'Por confirmar'}
+                </Text>
               </View>
 
               <View style={styles.divider} />
 
               <View style={styles.row}>
                 <Text style={styles.label}>Motivo:</Text>
-                <Text style={styles.value}>{proximaCita.motivo || 'Consulta general'}</Text>
+                <Text style={styles.value}>
+                  {proximaCita.motivo || 'Consulta general'}
+                </Text>
               </View>
 
               <View style={styles.divider} />
 
               <View style={styles.row}>
                 <Text style={styles.label}>Estado:</Text>
-                <View style={[
-                  styles.badge,
-                  proximaCita.estado === 'Confirmada' && styles.badgeConfirmada,
-                  proximaCita.estado === 'Pendiente' && styles.badgePendiente,
-                  proximaCita.estado === 'Cancelada' && styles.badgeCancelada,
-                ]}>
-                  <Text style={styles.badgeText}>
-                    {proximaCita.estado || 'Confirmada'}
-                  </Text>
-                </View>
+                {(() => {
+                  const raw = proximaCita.estado || 'pendiente';
+                  const estado = String(raw).toLowerCase();
+                  const label =
+                    raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+
+                  return (
+                    <View
+                      style={[
+                        styles.badge,
+                        estado === 'confirmada' && styles.badgeConfirmada,
+                        estado === 'pendiente' && styles.badgePendiente,
+                        estado === 'cancelada' && styles.badgeCancelada,
+                      ]}
+                    >
+                      <Text style={styles.badgeText}>{label}</Text>
+                    </View>
+                  );
+                })()}
               </View>
 
               {proximaCita.notas && (
@@ -121,7 +149,7 @@ export default function ScrProximaCita({ navigation }: any) {
             <Text style={styles.emptyIcon}>📅</Text>
             <Text style={styles.emptyText}>No tienes citas programadas</Text>
             <Text style={styles.emptySubtext}>
-              Contacta a tu médico para agendar una cita
+              Puedes solicitar una hora desde el calendario.
             </Text>
           </View>
         )}
