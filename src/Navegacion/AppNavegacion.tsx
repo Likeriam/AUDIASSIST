@@ -18,6 +18,7 @@ import ScrHomeTecnologo from '../Pantallas/tecnologo/ScrHomeTecnologo';
 import ScrCrearCalend from '../Pantallas/tecnologo/ScrCalendarioTecnologo';
 import ListaPacientes from '../Pantallas/tecnologo/ScrListaPacientes';
 import ScrRegistroTecnologo from '../Pantallas/tecnologo/ScrRegistroTecnologo';
+import ScrBandejaSolicitures from '../Pantallas/tecnologo/ScrBandejaSolicitudes';
 
 import { useAuth } from '../Contexts/AuthContext';
 
@@ -69,6 +70,7 @@ function TecnologoStackNavigator() {
       <TecnologoStack.Screen name="Home_Tecnologo"component={ScrHomeTecnologo}/>
       <TecnologoStack.Screen name="Lista_Pacientes"component={ListaPacientes}/>
       <TecnologoStack.Screen name="Crear_Calendario"component={ScrCrearCalend}/>
+      <TecnologoStack.Screen name="Bandeja_Solicitudes"component={ScrBandejaSolicitures}/>
     </TecnologoStack.Navigator>
   );
 }

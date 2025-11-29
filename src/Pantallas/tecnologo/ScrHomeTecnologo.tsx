@@ -167,12 +167,7 @@ export default function ScrHomeTecnologo({ navigation }: any) {
 
         <TouchableOpacity
           style={styles.btn}
-          onPress={() =>
-            Alert.alert(
-              'En desarrollo',
-              'La bandeja de entrada de solicitudes estará disponible en una versión futura.'
-            )
-          }
+          onPress={() => navigation.navigate('Bandeja_Solicitudes')}
           activeOpacity={0.85}
         >
           <Text style={styles.btnText}>Bandeja de entrada de solicitudes</Text>

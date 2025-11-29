@@ -61,7 +61,7 @@ function getWeekDays(start: Date) {
   for (let i = 0; i < 7; i++) {
     const d = addDays(start, i);
     days.push({
-      key: dateToKey(d),  // clave estable local
+      key: dateToKey(d), // clave estable local
       label: labels[i],
       number: d.getDate(),
       date: d,
@@ -116,22 +116,9 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
   const [modalOpen, setModalOpen] = useState(false);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
-  // Horas disponibles (09:00 a 17:30 cada 30 min)
+  // Horas disponibles (09:00 a 18:00, solo horas completas)
   const timeSlots = useMemo(() => {
-    const slots: string[] = [];
-    let hour = 9;
-    let minute = 0;
-    while (hour < 17 || (hour === 17 && minute <= 30)) {
-      const hh = hour.toString().padStart(2, '0');
-      const mm = minute.toString().padStart(2, '0');
-      slots.push(`${hh}:${mm}`);
-      minute += 30;
-      if (minute >= 60) {
-        minute = 0;
-        hour += 1;
-      }
-    }
-    return slots;
+    return [...HOURS];
   }, []);
 
   // Cargar citas ocupadas de la semana (Lu–Do)
@@ -158,9 +145,9 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
 
         const map: Record<string, boolean> = {};
         (data || []).forEach((cita: any) => {
-          const fecha: string = cita.fecha;   // 'YYYY-MM-DD'
-          const horaRaw: string = cita.hora;  // 'HH:MM:SS'
-          const hora = horaRaw.slice(0, 5);   // 'HH:MM'
+          const fecha: string = cita.fecha; // 'YYYY-MM-DD'
+          const horaRaw: string = cita.hora; // 'HH:MM:SS'
+          const hora = horaRaw.slice(0, 5); // 'HH:MM'
           map[slotKey(fecha, hora)] = true;
         });
 
@@ -288,9 +275,7 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
             activeOpacity={0.85}
             onPress={() => navigation.navigate('Proxima_Cita')}
           >
-            <Text style={styles.reviewBtnText}>
-              Revisar citas programadas
-            </Text>
+            <Text style={styles.reviewBtnText}>Revisar citas programadas</Text>
           </TouchableOpacity>
 
           {infoMessage && (
@@ -332,7 +317,7 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
             </View>
           </View>
 
-          {/* Marco del calendario (BORDE AZUL + TODO ADENTRO) */}
+          {/* Marco del calendario */}
           <View style={styles.calendarFrame}>
             {/* Encabezado semana */}
             <View style={styles.weekHeaderRow}>
@@ -411,9 +396,7 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
                         >
                           {isBooked && (
                             <View style={styles.gridEvent}>
-                              <Text style={styles.gridEventText}>
-                                Ocupado
-                              </Text>
+                              <Text style={styles.gridEventText}>Ocupado</Text>
                             </View>
                           )}
                         </TouchableOpacity>
