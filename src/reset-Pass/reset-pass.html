@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Restablecer contraseña - Audiassist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 4px;
+      color: #1a2942;
+    }
+    p {
+      font-size: 14px;
+      color: #555;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    label {
+      font-size: 14px;
+      color: #333;
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 4px;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 18px;
+      width: 100%;
+      padding: 10px;
+      background-color: #FFD84D;
+      border: none;
+      border-radius: 30px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .message {
+      margin-top: 12px;
+      font-size: 13px;
+    }
+    .message.error {
+      color: #c0392b;
+    }
+    .message.success {
+      color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Restablecer contraseña</h1>
+    <p>Ingresa una nueva contraseña para tu cuenta de Audiassist.</p>
+
+    <form id="reset-form">
+      <label for="password">Nueva contraseña</label>
+      <input type="password" id="password" minlength="6" required />
+
+      <label for="password2">Confirmar nueva contraseña</label>
+      <input type="password" id="password2" minlength="6" required />
+
+      <button type="submit" id="submit-btn">Cambiar contraseña</button>
+
+      <div id="message" class="message"></div>
+    </form>
+  </div>
+
+  <!-- Supabase JS v2 desde CDN -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    // 1) RELLENAR ESTO CON LOS DATOS DE TU PROYECTO
+    const SUPABASE_URL = 'https://ogdmjgayadgdhcmpabqv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nZG1qZ2F5YWRnZGhjbXBhYnF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5MzYwNTgsImV4cCI6MjA3OTUxMjA1OH0.w0xykeqK_KP7Of2TxoW8D1KnkrEUD9BDV49iT6MxhBw';
+
+    // 2) Crear cliente
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const form = document.getElementById('reset-form');
+    const passwordInput = document.getElementById('password');
+    const password2Input = document.getElementById('password2');
+    const messageDiv = document.getElementById('message');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function setMessage(text, type) {
+      messageDiv.textContent = text;
+      messageDiv.className = 'message ' + (type || '');
+    }
+
+    function setLoading(isLoading) {
+      submitBtn.disabled = isLoading;
+      submitBtn.textContent = isLoading ? 'Guardando...' : 'Cambiar contraseña';
+    }
+
+    // 3) Al cargar la página, verificar que hay una sesión de "recovery"
+    async function init() {
+      setMessage('Verificando enlace de recuperación...', '');
+      setLoading(true);
+
+      // Supabase v2 detecta automáticamente el token en la URL (#access_token...)
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      if (error) {
+        console.error('Error al obtener sesión:', error);
+        setMessage('Error al validar el enlace. Intenta solicitar un nuevo correo de recuperación.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      if (!data.session) {
+        setMessage('Enlace inválido o expirado. Solicita nuevamente la recuperación de contraseña.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      setMessage('Enlace válido. Ingresa tu nueva contraseña.', 'success');
+      setLoading(false);
+    }
+
+    init();
+
+    // 4) Manejar envío del formulario
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setMessage('', '');
+      const pass1 = passwordInput.value.trim();
+      const pass2 = password2Input.value.trim();
+
+      if (!pass1 || !pass2) {
+        setMessage('Por favor completa ambos campos.', 'error');
+        return;
+      }
+      if (pass1.length < 6) {
+        setMessage('La contraseña debe tener al menos 6 caracteres.', 'error');
+        return;
+      }
+      if (pass1 !== pass2) {
+        setMessage('Las contraseñas no coinciden.', 'error');
+        return;
+      }
+
+      setLoading(true);
+      setMessage('Actualizando contraseña...', '');
+
+      const { data, error } = await supabaseClient.auth.updateUser({ password: pass1 });
+
+      setLoading(false);
+
+      if (error) {
+        console.error('Error al actualizar contraseña:', error);
+        setMessage('No se pudo actualizar la contraseña. Intenta nuevamente.', 'error');
+        return;
+      }
+
+      setMessage('Contraseña actualizada con éxito. Ya puedes volver a la app e iniciar sesión con tu nueva contraseña.', 'success');
+      // Opcional: redirigir a tu página de login web
+      // window.location.href = 'https://tu-app-login.com';
+    });
+  </script>
+</body>
+</html>
+

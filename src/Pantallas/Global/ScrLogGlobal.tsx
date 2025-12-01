@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet,Text,View,Image,TouchableOpacity,TextInput,Alert,} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+} from 'react-native';
 import { useAuth } from '../../Contexts/AuthContext';
 import { cleanRut } from '../../Lib/helpers/authHelpers';
 import { supabase } from '../../Lib/supabaseClient';
@@ -68,10 +76,8 @@ export default function ScrLogPaciente({ navigation }: any) {
 
       // 4) Navegar según el rol
       if (perfil.rol === 'tecnologo') {
-        // Home para tecnólogo
         navigation.navigate('Lista_Pacientes');
       } else {
-        // Por defecto, tratamos como paciente
         navigation.navigate('Home_Paciente');
       }
     } catch (error: any) {
@@ -135,6 +141,15 @@ export default function ScrLogPaciente({ navigation }: any) {
         <Text style={styles.btnText}>
           {loading ? 'Cargando...' : 'Iniciar Sesión'}
         </Text>
+      </TouchableOpacity>
+
+      {/* ENLACE OLVIDÉ MI CONTRASEÑA */}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Recuperar_Contrasena')}
+        style={styles.linkForgot}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.linkForgotText}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
 
       {/* BOTÓN DE REGISTRO PACIENTE */}
@@ -221,6 +236,17 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  linkForgot: {
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  linkForgotText: {
+    color: '#48718d',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+    textAlign: 'center',
+  },
+
   btnSecondary: {
     width: '90%',
     alignItems: 'center',
@@ -236,3 +262,4 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
 });
+

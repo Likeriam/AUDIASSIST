@@ -12,6 +12,30 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { supabase } from '../../Lib/supabaseClient';
 
+// ==== HELPERS DE FECHA LOCAL ======================================
+
+// Parsea 'YYYY-MM-DD' como fecha local (NO UTC)
+function parseLocalDateFromYMD(ymd: string): Date {
+  const [yearStr, monthStr, dayStr] = ymd.split('-');
+  const year = Number(yearStr);
+  const month = Number(monthStr); // 1–12
+  const day = Number(dayStr);     // 1–31
+  return new Date(year, month - 1, day); // fecha en horario local
+}
+
+// Formatea 'YYYY-MM-DD' a texto en español usando fecha local
+function formatFechaBonitaLocal(ymd: string): string {
+  const fechaObj = parseLocalDateFromYMD(ymd.slice(0, 10)); // por seguridad
+  return fechaObj.toLocaleDateString('es-CL', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+// =================================================================
+
 export default function ScrCalendarioTecnologo({ navigation }: any) {
   const [citasPendientes, setCitasPendientes] = useState<any[]>([]);
   const [citasAceptadas, setCitasAceptadas] = useState<any[]>([]);
@@ -44,8 +68,8 @@ export default function ScrCalendarioTecnologo({ navigation }: any) {
       }
 
       const todas = data || [];
-      const pendientes = todas.filter(c => c.estado === 'pendiente');
-      const aceptadas = todas.filter(c => c.estado === 'aceptada');
+      const pendientes = todas.filter((c: any) => c.estado === 'pendiente');
+      const aceptadas = todas.filter((c: any) => c.estado === 'aceptada');
 
       setCitasPendientes(pendientes);
       setCitasAceptadas(aceptadas);
@@ -64,7 +88,7 @@ export default function ScrCalendarioTecnologo({ navigation }: any) {
     try {
       const { error } = await supabase
         .from('cita')
-        .update({ estado: 'aceptada' }) // estado consistente con el filtro
+        .update({ estado: 'aceptada' })
         .eq('id', citaId);
 
       if (error) {
@@ -100,39 +124,36 @@ export default function ScrCalendarioTecnologo({ navigation }: any) {
   };
 
   const cancelarCita = async (citaId: string) => {
-  try {
-    // Eliminar definitivamente la cita de la tabla
-    const { error } = await supabase
-      .from('cita')
-      .delete()
-      .eq('id', citaId);
+    try {
+      const { error } = await supabase
+        .from('cita')
+        .delete()
+        .eq('id', citaId);
 
-    if (error) {
-      console.error('Error al cancelar cita:', error);
+      if (error) {
+        console.error('Error al cancelar cita:', error);
+        Alert.alert(
+          'Error',
+          'No se pudo cancelar la cita. Intenta nuevamente.'
+        );
+        return;
+      }
+
+      setCitasPendientes(prev => prev.filter(c => c.id !== citaId));
+      setCitasAceptadas(prev => prev.filter(c => c.id !== citaId));
+
+      Alert.alert(
+        'Cita cancelada',
+        'La cita ha sido cancelada y el horario está disponible nuevamente.'
+      );
+    } catch (e) {
+      console.error('Error inesperado al cancelar cita:', e);
       Alert.alert(
         'Error',
         'No se pudo cancelar la cita. Intenta nuevamente.'
       );
-      return;
     }
-
-    // Quitarla de los estados locales (pendientes y aceptadas)
-    setCitasPendientes(prev => prev.filter(c => c.id !== citaId));
-    setCitasAceptadas(prev => prev.filter(c => c.id !== citaId));
-
-    Alert.alert(
-      'Cita cancelada',
-      'La cita ha sido cancelada y el horario está disponible nuevamente.'
-    );
-  } catch (e) {
-    console.error('Error inesperado al cancelar cita:', e);
-    Alert.alert(
-      'Error',
-      'No se pudo cancelar la cita. Intenta nuevamente.'
-    );
-  }
-};
-
+  };
 
   if (loading) {
     return (
@@ -150,18 +171,13 @@ export default function ScrCalendarioTecnologo({ navigation }: any) {
 
   const renderCard = (cita: any, mostrarAcciones: boolean) => {
     const paciente = cita.paciente || {};
-    const nombrePaciente = `${paciente.nombre ?? ''} ${
-      paciente.apellido ?? ''
-    }`.trim() || 'Paciente sin nombre';
+    const nombrePaciente =
+      `${paciente.nombre ?? ''} ${paciente.apellido ?? ''}`.trim() ||
+      'Paciente sin nombre';
     const rut = paciente.rut || 'Sin RUT registrado';
 
-    const fechaBonita = new Date(cita.fecha).toLocaleDateString('es-CL', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-
+    // AQUÍ estaba el desfase: new Date('YYYY-MM-DD') → UTC → día anterior
+    const fechaBonita = formatFechaBonitaLocal(String(cita.fecha));
     const horaBonita = cita.hora ? String(cita.hora).slice(0, 5) : 'Sin hora';
 
     return (
@@ -194,7 +210,6 @@ export default function ScrCalendarioTecnologo({ navigation }: any) {
           </View>
 
           {mostrarAcciones ? (
-            // PENDIENTE: Aceptar / Cancelar
             <View style={styles.actionsRow}>
               <TouchableOpacity
                 style={styles.acceptBtn}
@@ -239,7 +254,6 @@ export default function ScrCalendarioTecnologo({ navigation }: any) {
               </TouchableOpacity>
             </View>
           ) : (
-            // ACEPTADA: mostrar estado + botón Cancelar
             <View style={styles.actionsRow}>
               <Text style={styles.estadoAceptada}>Estado: aceptada</Text>
 

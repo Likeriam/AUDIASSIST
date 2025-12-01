@@ -61,7 +61,7 @@ function getWeekDays(start: Date) {
   for (let i = 0; i < 7; i++) {
     const d = addDays(start, i);
     days.push({
-      key: dateToKey(d), // clave estable local
+      key: dateToKey(d), // clave estable local 'YYYY-MM-DD'
       label: labels[i],
       number: d.getDate(),
       date: d,
@@ -128,8 +128,8 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
         const monday = currentWeekStart;
         const sunday = addDays(currentWeekStart, 6);
 
-        const mondayStr = dateToKey(monday);
-        const sundayStr = dateToKey(sunday);
+        const mondayStr = dateToKey(monday); // 'YYYY-MM-DD'
+        const sundayStr = dateToKey(sunday); // 'YYYY-MM-DD'
 
         const { data, error } = await supabase
           .from('cita')
@@ -145,10 +145,16 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
 
         const map: Record<string, boolean> = {};
         (data || []).forEach((cita: any) => {
-          const fecha: string = cita.fecha; // 'YYYY-MM-DD'
-          const horaRaw: string = cita.hora; // 'HH:MM:SS'
+          // Soportar tanto 'YYYY-MM-DD' como 'YYYY-MM-DDTHH:MM:SSZ'
+          const fechaRaw = String(cita.fecha ?? '');
+          const fecha = fechaRaw.slice(0, 10); // solo la parte de fecha
+
+          const horaRaw = String(cita.hora ?? ''); // 'HH:MM:SS' o similar
+          if (!fecha || !horaRaw) return;
+
           const hora = horaRaw.slice(0, 5); // 'HH:MM'
-          map[slotKey(fecha, hora)] = true;
+          const key = slotKey(fecha, hora);
+          map[key] = true;
         });
 
         setBookedSlots(map);
@@ -180,8 +186,8 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
     }
     if (!selectedDateStr || !selectedTime) return;
 
-    const fecha = selectedDateStr;
-    const hora = `${selectedTime}:00`;
+    const fecha = selectedDateStr; // 'YYYY-MM-DD'
+    const hora = `${selectedTime}:00`; // 'HH:MM:00'
 
     try {
       const { error } = await supabase.from('cita').insert({
@@ -210,6 +216,7 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
         return;
       }
 
+      // Marcar inmediatamente como ocupado en la grilla
       const key = slotKey(fecha, selectedTime);
       setBookedSlots(prev => ({ ...prev, [key]: true }));
 
@@ -372,7 +379,7 @@ export default function ScrCalendarioPaciente({ navigation }: any) {
                 {HOURS.map((hour, rowIndex) => (
                   <View key={hour} style={styles.gridRow}>
                     {weekDays.map((day, colIndex) => {
-                      const dateStr = day.key;
+                      const dateStr = day.key; // 'YYYY-MM-DD'
                       const dow = day.date.getDay();
                       const isWeekend = dow === 0 || dow === 6;
 
@@ -601,7 +608,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // Marco azul
   calendarFrame: {
     borderWidth: 3,
     borderColor: '#1a2942',
@@ -777,3 +783,4 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 });
+

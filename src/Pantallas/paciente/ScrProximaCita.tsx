@@ -10,6 +10,36 @@ import {
 import { usePacienteData } from '../../Hooks/usePacienteData';
 import { supabase } from '../../Lib/supabaseClient';
 
+// ====================== HELPERS DE FECHA ======================
+
+// Parsea un valor que viene de Supabase (date/string) a Date local (sin desfase)
+function parseLocalDateFromSupabaseDate(input: string | Date): Date {
+  if (input instanceof Date) {
+    return new Date(input.getFullYear(), input.getMonth(), input.getDate());
+  }
+
+  const str = String(input);
+  const ymd = str.slice(0, 10); // 'YYYY-MM-DD'
+  const [yStr, mStr, dStr] = ymd.split('-');
+  const y = Number(yStr);
+  const m = Number(mStr);
+  const d = Number(dStr);
+  return new Date(y, m - 1, d);
+}
+
+// Formatea la fecha bonita en español
+function formatFechaBonita(fecha: string | Date): string {
+  const d = parseLocalDateFromSupabaseDate(fecha);
+  return d.toLocaleDateString('es-CL', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+// =============================================================
+
 export default function ScrProximaCita({ navigation }: any) {
   const { pacienteData, loading: loadingPaciente } = usePacienteData();
   const [proximaCita, setProximaCita] = useState<any>(null);
@@ -25,26 +55,30 @@ export default function ScrProximaCita({ navigation }: any) {
     try {
       setLoading(true);
 
-      const hoy = new Date().toISOString().split('T')[0];
-
+      // MISMA LÓGICA DE ScrBandejaSolicitudes, PERO FILTRANDO POR paciente_id
       const { data, error } = await supabase
-        .from('cita') // ← tabla correcta
-        .select('*')
-        .eq('paciente_id', pacienteId)    // ← relación por id del paciente
-        .neq('estado', 'cancelado')       // opcional: no mostrar canceladas
-        .gte('fecha', hoy)
+        .from('cita')
+        .select('id, fecha, hora, motivo, estado, notas, paciente_id')
+        .eq('paciente_id', pacienteId)
+        .in('estado', ['pendiente', 'aceptada'])
         .order('fecha', { ascending: true })
-        .order('hora', { ascending: true })
-        .limit(1)
-        .maybeSingle();
+        .order('hora', { ascending: true });
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      console.log('[ScrProximaCita] pacienteId:', pacienteId);
+      console.log('[ScrProximaCita] data recibida:', data);
+      console.log('[ScrProximaCita] error:', error);
+
+      if (error) {
+        console.error('Error cargando citas del paciente:', error);
+        setProximaCita(null);
+        return;
       }
 
-      setProximaCita(data || null);
+      // Primera cita de la lista ordenada = “próxima”
+      const row = data && data.length > 0 ? data[0] : null;
+      setProximaCita(row);
     } catch (err: any) {
-      console.error('Error cargando próxima cita:', err);
+      console.error('Error cargando próxima cita (catch):', err);
       setProximaCita(null);
     } finally {
       setLoading(false);
@@ -77,30 +111,31 @@ export default function ScrProximaCita({ navigation }: any) {
             </View>
 
             <View style={styles.cardBody}>
+              {/* FECHA */}
               <View style={styles.row}>
                 <Text style={styles.label}>Fecha:</Text>
                 <Text style={styles.value}>
-                  {new Date(proximaCita.fecha).toLocaleDateString('es-CL', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  {proximaCita.fecha
+                    ? formatFechaBonita(proximaCita.fecha)
+                    : 'Sin fecha'}
                 </Text>
               </View>
 
               <View style={styles.divider} />
+
+              {/* HORA */}
               <View style={styles.row}>
                 <Text style={styles.label}>Hora:</Text>
                 <Text style={styles.value}>
                   {proximaCita.hora
-                    ? String(proximaCita.hora).slice(0, 5) // HH:MM
+                    ? String(proximaCita.hora).slice(0, 5)
                     : 'Por confirmar'}
                 </Text>
               </View>
 
               <View style={styles.divider} />
 
+              {/* MOTIVO */}
               <View style={styles.row}>
                 <Text style={styles.label}>Motivo:</Text>
                 <Text style={styles.value}>
@@ -110,6 +145,7 @@ export default function ScrProximaCita({ navigation }: any) {
 
               <View style={styles.divider} />
 
+              {/* ESTADO */}
               <View style={styles.row}>
                 <Text style={styles.label}>Estado:</Text>
                 {(() => {
@@ -123,6 +159,7 @@ export default function ScrProximaCita({ navigation }: any) {
                       style={[
                         styles.badge,
                         estado === 'confirmada' && styles.badgeConfirmada,
+                        estado === 'aceptada' && styles.badgeConfirmada,
                         estado === 'pendiente' && styles.badgePendiente,
                         estado === 'cancelada' && styles.badgeCancelada,
                       ]}
@@ -133,6 +170,7 @@ export default function ScrProximaCita({ navigation }: any) {
                 })()}
               </View>
 
+              {/* NOTAS */}
               {proximaCita.notas && (
                 <>
                   <View style={styles.divider} />
@@ -316,3 +354,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+
+
+
+
+
